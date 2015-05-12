@@ -3,6 +3,11 @@ var fs = require('fs');
 var TreeBuilder = require('./lib/tree-builder');
 var types = require('./gulp-types.js');
 
+var EjsFabricator = require('./lib/ejs-fabricator');
+var TraceFilter = require('./lib/trace-filter');
+var TraceTree = require('./lib/trace-tree');
+var TracePrettyPrint = require('./lib/trace-pretty-print');
+
 function writeFile(output, data, cb) {
   if (typeof data !== 'string')
     stringData = JSON.stringify(data);
@@ -72,6 +77,15 @@ module.exports.fileReader = function(filename) {
   };
 }
 
+module.exports.fileToString = function() {
+  return {
+    impl: readFile,
+    name: 'fileToString',
+    input: 'string',
+    output: 'string'
+  };
+}
+
 module.exports.filter = function(FilterType) {
   return {
     impl: treeBuilder(FilterType),
@@ -92,6 +106,50 @@ module.exports.fabricator = function(FabType, input) {
     input: input,
     output: 'JSON'
   };
+}
+
+module.exports.ejsFabricator = function(prefix) {
+  return {
+    impl: function(data, cb) {
+      cb(new EjsFabricator(data, prefix).fabricate());
+    },
+    name: 'ejsFabrictor',
+    input: 'string',
+    output: '[(string,string)]'
+  }
+}
+
+module.exports.traceFilter = function() {
+  return {
+    impl: function(data, cb) {
+      cb(new TraceFilter(data).filter());
+    },
+    name: 'traceFilter',
+    input: 'JSON',
+    output: 'JSON'
+  }
+}
+
+module.exports.traceTree = function() {
+  return {
+    impl: function(data, cb) {
+      cb(new TraceTree(data).filter());
+    },
+    name: 'traceTree',
+    input: 'JSON',
+    output: 'JSON'
+  }
+}
+
+module.exports.tracePrettyPrint = function() {
+  return {
+    impl: function(data, cb) {
+      cb(new TracePrettyPrint(data).filter());
+    },
+    name: 'tracePrettyPrint',
+    input: 'JSON',
+    output: 'String'
+  }
 }
 
 var treeBuilder = function(WriterType) {
@@ -143,4 +201,12 @@ module.exports.consoleOutput = function() {
   };
 }
 
-
+module.exports.taggedConsoleOutput = function() {
+  var typeVar = types.newTypeVar();
+  return {
+    impl: function(data, cb) { console.log(data.right); console.log('----------------'), console.log(data.left); cb(data); },
+    name: 'taggedConsoleOutput',
+    input: '('+typeVar+',string)',
+    output: '('+typeVar+',string)'
+  };
+}

@@ -84,7 +84,7 @@ module.exports.justLeft = function() {
   return {
     name: 'justLeft',
     impl: function(input, cb) { cb(input.left); },
-    input: "(" + typeVar1 + "," + typeVr2 + ")",
+    input: "(" + typeVar1 + "," + typeVar2 + ")",
     output: typeVar1
   };
 }
@@ -103,16 +103,6 @@ module.exports.right = function(stage) {
   }
 }
 
-module.exports.stage = function(list) {
-  return {
-    impl: function(input, cb) {
-      stages.processStagesWithInput(input, list, cb, function(e) { console.log('failed pipeline', e, '\n', e.stack); cb(null); });
-    },
-    input: list[0].input,
-    output: list[list.length - 1].output
-  };
-}
-
 function outputForInput(inputSpec, input, output) {
   var re = new RegExp(inputSpec);
   return input.replace(re, output);
@@ -125,6 +115,54 @@ module.exports.outputName = function(inputSpec, output) {
     },
     name: 'outputName',
     input: 'string',
+    output: 'string'
+  };
+}
+
+module.exports.concat = function() {
+  var typeVar = types.newTypeVar();
+  return {
+    impl: function(input, cb) {
+      return input.reduce(function(a, b) { return a.concat(b); }, []);
+    },
+    name: 'concat',
+    input: '[[' + typeVar + ']]',
+    output: '[' + typeVar + ']'
+  }
+}
+
+ // [ {left: [{left: file, right: ejsPrefix}], right: input} ]
+module.exports.unejs = function() {
+  return {
+    impl: function(input, cb) {
+      var output = []
+      input.forEach(function(inputItem) {
+	for (var i = 0; i < inputItem.left.length; i++)
+	  output.push({left: inputItem.left[i].left, right: inputItem.right + inputItem.left[i].right});
+      });
+      cb(output);
+    },
+    name: 'unejs',
+    input: '[([(string,string)],string)]',
+    output: '[(string,string)]'
+  }
+}
+
+module.exports.listify = function() {
+  var typeVar = types.newTypeVar();
+  return {
+    impl: function(input, cb) { cb([input]); },
+    name: 'listify',
+    input: typeVar,
+    output: '[' + typeVar + ']'
+  };
+}
+
+module.exports.immediate = function(x) {
+  return {
+    impl: function(unused, cb) { cb(x); },
+    name: 'immediate',
+    input: 'unit',
     output: 'string'
   };
 }
