@@ -23,6 +23,7 @@ function writeFile(output, data, cb) {
 }
 
 function readJSONFile(filename, cb) {
+  console.log('reading', filename, 'as JSON');
   fs.readFile(filename, 'utf8', function(err, data) {
     if (err)
       throw err;
@@ -32,6 +33,7 @@ function readJSONFile(filename, cb) {
 }
 
 function readFile(filename, cb) {
+  console.log('reading', filename, 'as string');
   fs.readFile(filename, 'utf8', function(err, data) {
     if (err)
       throw err;
