@@ -1,0 +1,31 @@
+digraph style {
+
+  imports = "['browser-phases', 'trace-phases']";
+
+  input -> browser -> load -> inlineStylify -> onlyPseudoElementStyles -> save -> closeBrowser -> bufferToString -> jsonParse -> tag_1 -> NukeIFrameFilter;
+
+  input_1 -> browser_1 -> load_1 -> save_1 -> closeBrowser_1 -> bufferToString_1 -> jsonParse_1 -> NukeIFrameFilter_1 -> tag_2 -> HTMLWriter;
+
+  NukeIFrameFilter -> StyleTokenizerFilter -> StyleFilter -> StyleDetokenizerFilter -> StyleMinimizationFilter -> tag_3 -> HTMLWriter;
+  StyleDetokenizerFilter -> tag_4 -> HTMLWriter;
+  NukeIFrameFilter -> HTMLWriter;
+
+  HTMLWriter -> trace;
+  
+  trace -> traceFilter -> tracePIDSplitter -> traceTree -> tracePrettyPrint -> log;
+
+  browser [browser="android-jb-system-chrome"];
+  browser_1 [browser="android-jb-system-chrome"];
+  trace [browser="android-jb-system-chrome"];
+  input [data="http://nytimes.com"];
+  input_1 [data="http://nytimes.com"];
+  traceFilter [traceEvents="['Document::updateStyle','FrameView::layout','CSSParserImpl::parseStyleSheet','HTMLDocumentParser::processParsedChunkFromBackgroundParser']"];
+  tracePrettyPrint [showTrace="false"];
+  log [tags="['stylesheets', 'minimized']"];
+  tag_1 [tag="stylesheets", value="false"];
+  tag_2 [tag="stylesheets", value="true"];
+  tag_3 [tag="minimized", value="true"];
+  tag_4 [tag="minimized", value="false"];
+
+  writeStringfile [filename="nyt.html"];
+}

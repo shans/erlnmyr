@@ -1,0 +1,10 @@
+digraph ejs {
+  imports = "['trace-phases']";
+
+  input -> fileToBuffer -> bufferToString -> ejsFabricator -> trace -> traceFilter -> tracePIDSplitter -> traceTree -> tracePrettyPrint -> log;
+
+  input [data="example.ejs"];
+  trace [browser="android-jb-system-chrome"];
+  tracePrettyPrint [showTrace="false"];
+  log [tags="['ejsFabricator']"];
+}

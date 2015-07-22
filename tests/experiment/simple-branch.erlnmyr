@@ -1,0 +1,8 @@
+digraph test {
+
+  input -> passthrough -> log;
+  input -> log;
+
+  input [data="foobar"];
+
+}

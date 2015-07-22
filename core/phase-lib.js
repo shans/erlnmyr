@@ -129,6 +129,13 @@ module.exports.input = phase({output: types.string, arity: '0:N'},
     },
     { data: '', tag: true});
 
+module.exports.tag = phase({input: typeVar('a'), output: typeVar('a'), arity: '1:1'},
+  function(data, tags) {
+    tags.tag(this.options.tag, this.options.value);
+    return data;
+  },
+  { tag: '', value: ''});
+
 module.exports.retag = phase({input: typeVar('a'), output: typeVar('a'), arity: '1:1'},
   function(data, tags) {
     var input = tags.read(this.options.tag);
@@ -154,6 +161,10 @@ module.exports.compare = phase({input: typeVar('a'), output: typeVar('a'), arity
     return data;
   },
   { tag: ''});
+
+module.exports.passthrough = phase({input: typeVar('a'), output: typeVar('a'), arity: '1:1'},
+  function(data) { return data; }
+);
 
 module.exports.compareString = phase({input: types.string, output: types.string, arity: '1:1'},
   function(input) {
